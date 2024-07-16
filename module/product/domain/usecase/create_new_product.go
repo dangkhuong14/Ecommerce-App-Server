@@ -1,7 +1,7 @@
-package productusecase
+package usecase
 
 import (
-	"ecommerce/module/product/productdomain"
+	"ecommerce/module/product/domain"
 
 	"golang.org/x/net/context"
 
@@ -10,7 +10,7 @@ import (
 
 // Driving side adapter of use case
 type CreateProductUseCase interface {
-	CreateProduct(ctx context.Context, prod *productdomain.ProductCreationDTO) error
+	CreateProduct(ctx context.Context, prod *domain.ProductCreationDTO) error
 }
 
 func NewCreateProductUseCase(repo CreateProductRepository) CreateNewProductUseCase {
@@ -24,11 +24,11 @@ type CreateNewProductUseCase struct {
 	repo CreateProductRepository
 }
 
-func (uc CreateNewProductUseCase) CreateProduct(ctx context.Context, prod *productdomain.ProductCreationDTO) error {
+func (uc CreateNewProductUseCase) CreateProduct(ctx context.Context, prod *domain.ProductCreationDTO) error {
 	prod.Name = strings.TrimSpace(prod.Name)
 
 	if prod.Name == "" {
-		return productdomain.ErrProductNameCannotBeBlank
+		return domain.ErrProductNameCannotBeBlank
 	}
 
 	if err := uc.repo.CreateProduct(ctx, prod); err != nil {
@@ -40,5 +40,5 @@ func (uc CreateNewProductUseCase) CreateProduct(ctx context.Context, prod *produ
 
 // Repository adapter
 type CreateProductRepository interface {
-	CreateProduct(ctx context.Context, prod *productdomain.ProductCreationDTO) error
+	CreateProduct(ctx context.Context, prod *domain.ProductCreationDTO) error
 }

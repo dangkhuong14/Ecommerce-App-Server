@@ -1,4 +1,4 @@
-package productdomain
+package domain
 
 import (
 	"errors"
