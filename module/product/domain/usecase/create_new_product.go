@@ -1,9 +1,10 @@
 package usecase
 
 import (
+	"ecommerce/common"
 	"ecommerce/module/product/domain"
 
-	"golang.org/x/net/context"
+	"context"
 
 	"strings"
 )
@@ -25,11 +26,15 @@ type CreateNewProductUseCase struct {
 }
 
 func (uc CreateNewProductUseCase) CreateProduct(ctx context.Context, prod *domain.ProductCreationDTO) error {
-	prod.Name = strings.TrimSpace(prod.Name)
+	// business logic
+	*prod.Name = strings.TrimSpace(*prod.Name)
 
-	if prod.Name == "" {
+	if *prod.Name == "" {
 		return domain.ErrProductNameCannotBeBlank
 	}
+
+	// Generate product's id
+	prod.ID = common.GenNewUUID()
 
 	if err := uc.repo.CreateProduct(ctx, prod); err != nil {
 		return err

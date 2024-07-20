@@ -6,7 +6,7 @@ import (
 )
 
 func (repo MysqlRepository) CreateProduct(ctx context.Context, prod *domain.ProductCreationDTO) error {
-	if err := repo.db.Create(&prod).Error; err != nil {
+	if err := repo.db.Table(domain.ProductCreationDTO{}.GetProductCreationDTOTableName()).Create(&prod).Error; err != nil {
 		return err
 	}
 	return nil

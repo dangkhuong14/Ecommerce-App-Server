@@ -2,9 +2,9 @@ package common
 
 import (
 	"time"
+
 	"github.com/google/uuid"
 )
-
 
 type BaseModel struct {
 	ID        UUID      `gorm:"column:id" json:"id"`
@@ -15,12 +15,16 @@ type BaseModel struct {
 
 func GenNewBaseModel() BaseModel {
 	now := time.Now().UTC()
-	newUUID, _ := uuid.NewV7()
 
 	return BaseModel{
-		ID:        UUID(newUUID),
+		ID:        GenNewUUID(),
 		Status:    "activated",
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
+}
+
+func GenNewUUID() UUID {
+	newUUID, _ := uuid.NewV7()
+	return UUID(newUUID)
 }
