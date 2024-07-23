@@ -28,3 +28,13 @@ func GenNewUUID() UUID {
 	newUUID, _ := uuid.NewV7()
 	return UUID(newUUID)
 }
+
+func ParseUUID(s string) (UUID, error) {
+	newUUID, err := uuid.Parse(s)
+	if err != nil {
+		return UUID{}, err
+	}
+	
+	return UUID(newUUID), nil
+	
+}
