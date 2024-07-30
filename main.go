@@ -6,9 +6,13 @@ import (
 
 	"net/http"
 
+	"ecommerce/common"
 	"ecommerce/module/product/controller"
 	"ecommerce/module/product/domain/usecase"
 	mysqlRepo "ecommerce/module/product/repository/mysql"
+	"ecommerce/module/user/infras/httpservice"
+	"ecommerce/module/user/infras/repository"
+	userusecase "ecommerce/module/user/usecase"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
@@ -51,6 +55,12 @@ func main() {
 			products.POST("", api.CreateProductAPI(db))
 		}
 	}
+
+	// Set up User service dependencies
+	userRepo := repository.NewMysqlUser(db)
+	userUseCase := userusecase.NewUseCase(userRepo, &common.Hasher{})
+	httpservice.NewUserService(userUseCase).Routes(v1)
+
 
 	r.Run(":3000")
 }
