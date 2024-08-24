@@ -39,7 +39,35 @@ func (s Service) handleRegistration() gin.HandlerFunc{
 	}
 }
 
+func (s Service) handleEmailPasswordLogin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Parse body data
+		var dto  usecase.EmailPasswordLoginDTO
+
+		if err := c.Bind(&dto); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		// Get token
+		token, err := s.uc.LoginEmailPassword(c, dto)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		// Response token
+		c.JSON(http.StatusOK, gin.H{
+			"data": token,
+		})
+	}
+}
+
 func (s Service) Routes(g *gin.RouterGroup) {
 	g.POST("/register", s.handleRegistration())
+	g.POST("/login", s.handleEmailPasswordLogin())
 }
 

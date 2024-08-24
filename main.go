@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"ecommerce/common"
+	"ecommerce/component"
 	"ecommerce/module/product/controller"
 	"ecommerce/module/product/domain/usecase"
 	mysqlRepo "ecommerce/module/product/repository/mysql"
@@ -57,8 +58,15 @@ func main() {
 	}
 
 	// Set up User service dependencies
+	tokenProvider := component.NewJWTProvider(
+		component.DefaultSecret,
+		component.DefaultExpireTokenInSeconds,
+		component.DefaultExpireRefreshInSeconds,
+	)
+
 	userRepo := repository.NewMysqlUser(db)
-	userUseCase := userusecase.NewUseCase(userRepo, &common.Hasher{})
+	sessionRepo := repository.NewMysqlSession(db)
+	userUseCase := userusecase.NewUseCase(userRepo, sessionRepo, &common.Hasher{}, tokenProvider)
 	httpservice.NewUserService(userUseCase).Routes(v1)
 
 

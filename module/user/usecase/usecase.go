@@ -10,20 +10,36 @@ import (
 
 type UseCase interface {
 	Register(ctx context.Context, dto EmailPasswordRegistrationDTO) error
+	LoginEmailPassword(ctx context.Context, dto EmailPasswordLoginDTO) (*TokenResponseDTO, error)
+
+}
+
+type TokenProvider interface {
+	IssueToken(ctx context.Context, id, sub string) (token string, err error)
+	TokenExpireInSeconds() int
+	RefreshExpireInSeconds() int
 }
 
 type useCase struct {
-	repo UserRepository
-	hasher Hasher
+	repo          UserRepository
+	sessionRepo   SessionRepository
+	hasher        Hasher
+	tokenProvider TokenProvider
 }
 
-func NewUseCase(repo UserRepository, hasher Hasher) *useCase {
-	return &useCase{repo: repo, hasher: hasher}
+func NewUseCase(repo UserRepository, sessionRepo SessionRepository, hasher Hasher, tokenProvider TokenProvider) *useCase {
+	return &useCase{
+		repo:          repo,
+		sessionRepo:   sessionRepo,
+		hasher:        hasher,
+		tokenProvider: tokenProvider,
+	}
 }
 
 type Hasher interface {
 	RandomStr(length int) (string, error)
 	HashPassword(salt, password string) (string, error)
+	CompareHashPassword(hashedPassword, salt, password string) bool
 }
 
 func (uc *useCase) Register(ctx context.Context, dto EmailPasswordRegistrationDTO) error {
@@ -32,12 +48,12 @@ func (uc *useCase) Register(ctx context.Context, dto EmailPasswordRegistrationDT
 	if user != nil {
 		return domain.ErrEmailExists
 	}
-	if err != nil && !errors.Is(err, common.ErrRecordNotFound){
+	if err != nil && !errors.Is(err, common.ErrRecordNotFound) {
 		return err
 	}
 
 	// Generate salt
-	salt, err:= uc.hasher.RandomStr(30)
+	salt, err := uc.hasher.RandomStr(30)
 
 	if err != nil {
 		log.Printf("error: %v", err)
@@ -56,6 +72,7 @@ func (uc *useCase) Register(ctx context.Context, dto EmailPasswordRegistrationDT
 		common.GenNewUUID(),
 		dto.FirstName,
 		dto.LastName,
+		dto.Email,
 		hashedPassword,
 		salt,
 		domain.RoleUser,
@@ -79,4 +96,8 @@ type UserRepository interface {
 	Create(ctx context.Context, data *domain.User) error
 	// Update(ctx context.Context, data *domain.User) error
 	// Delete(ctx context.Context, data *domain.User) error
+}
+
+type SessionRepository interface {
+	Create(ctx context.Context, data *domain.Session) error
 }

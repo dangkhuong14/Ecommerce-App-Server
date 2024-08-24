@@ -27,6 +27,7 @@ func (repo mysqlUser) Create(ctx context.Context, data *domain.User) error {
 		Id: data.GetID(),
 		FirstName: data.GetFirstName(),
 		LastName: data.GetLastName(),
+		Email: data.GetEmail(),
 		Password: data.GetPassword(),
 		Salt: data.GetSalt(),
 		Role: data.GetRole().String(),
