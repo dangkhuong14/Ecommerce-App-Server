@@ -58,8 +58,10 @@ func main() {
 	}
 
 	// Set up User service dependencies
+	jwt_secret := os.Getenv("JWT_SECRET")
+
 	tokenProvider := component.NewJWTProvider(
-		component.DefaultSecret,
+		jwt_secret,
 		component.DefaultExpireTokenInSeconds,
 		component.DefaultExpireRefreshInSeconds,
 	)

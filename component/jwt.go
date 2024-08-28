@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DefaultSecret                 = "9c_z3w51h6u-*smwjw%mz$0jbdvh@*bggle0ewi9d5hbeczevm" // in 32 bytes
+	DefaultSecret                 = "secret key please change it!" // in 32 bytes
 	DefaultExpireTokenInSeconds   = 60 * 60 * 24 * 7                   // 7d
 	DefaultExpireRefreshInSeconds = 60 * 60 * 24 * 14                  // 14d
 )
