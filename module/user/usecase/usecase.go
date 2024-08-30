@@ -16,10 +16,26 @@ type useCase struct {
 	*registerUC
 }
 
+type Builder interface {
+	BuildUserQueryRepo() UserQueryRepository
+	BuildUserCmdRepo() UserCommandRepository
+	BuildHasher() Hasher
+	BuildTokenProvider() TokenProvider
+	BuildSessionQueryRepo() SessionQueryRepository
+	BuildSessionCmdRepo() SessionCommandRepository
+}
+
+func NewUseCaseWithBuilder(b Builder) *useCase {
+	return &useCase{
+		loginEmailPasswordUC: NewLoginEmailPasswordUC(b.BuildUserQueryRepo(), b.BuildSessionCmdRepo(), b.BuildHasher(), b.BuildTokenProvider()),
+		registerUC:           NewRegisterUC(b.BuildUserQueryRepo(), b.BuildUserCmdRepo(), b.BuildHasher()),
+	}
+}
+
 func NewUseCase(repo UserRepository, sessionRepo SessionRepository, hasher Hasher, tokenProvider TokenProvider) *useCase {
 	return &useCase{
 		loginEmailPasswordUC: NewLoginEmailPasswordUC(repo, sessionRepo, hasher, tokenProvider),
-		registerUC: NewRegisterUC(repo, repo, hasher),
+		registerUC:           NewRegisterUC(repo, repo, hasher),
 	}
 }
 
@@ -34,7 +50,6 @@ type Hasher interface {
 	HashPassword(salt, password string) (string, error)
 	CompareHashPassword(hashedPassword, salt, password string) bool
 }
-
 
 type UserRepository interface {
 	UserQueryRepository

@@ -6,13 +6,15 @@ import (
 
 	"net/http"
 
-	"ecommerce/common"
+	// "ecommerce/common"
 	"ecommerce/component"
 	"ecommerce/module/product/controller"
 	"ecommerce/module/product/domain/usecase"
 	mysqlRepo "ecommerce/module/product/repository/mysql"
 	"ecommerce/module/user/infras/httpservice"
-	"ecommerce/module/user/infras/repository"
+
+	// "ecommerce/module/user/infras/repository"
+	userbuilder "ecommerce/builder"
 	userusecase "ecommerce/module/user/usecase"
 
 	"github.com/gin-gonic/gin"
@@ -29,6 +31,8 @@ func main() {
 
 	dsn := mysqlConnStr
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	db = db.Debug()
 
 	if err != nil {
 		log.Fatalln("Cannot connect to MySQL:", err)
@@ -66,11 +70,18 @@ func main() {
 		component.DefaultExpireRefreshInSeconds,
 	)
 
-	userRepo := repository.NewMysqlUser(db)
-	sessionRepo := repository.NewMysqlSession(db)
-	userUseCase := userusecase.NewUseCase(userRepo, sessionRepo, &common.Hasher{}, tokenProvider)
-	httpservice.NewUserService(userUseCase).Routes(v1)
+	// use case with normal constructor
 
+	// userRepo := repository.NewMysqlUser(db)
+	// sessionRepo := repository.NewMysqlSession(db)
+	// userUseCase := userusecase.NewUseCase(userRepo, sessionRepo, &common.Hasher{}, tokenProvider)
+
+	// use case with simple builder
+	// userUseCaseWithBuilder := userusecase.NewUseCaseWithBuilder(userbuilder.NewSimpleBuilder(db, tokenProvider))
+
+	// use case with complex builder
+	userUseCaseWithCmplxBuilder := userusecase.NewUseCaseWithBuilder(userbuilder.NewCmplxBuilder(userbuilder.NewSimpleBuilder(db, tokenProvider)))
+	httpservice.NewUserService(userUseCaseWithCmplxBuilder).Routes(v1)
 
 	r.Run(":3000")
 }

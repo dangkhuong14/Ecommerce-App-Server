@@ -30,7 +30,7 @@ func (uc *loginEmailPasswordUC) LoginEmailPassword(ctx context.Context, dto Emai
 	// 1. Find user by email
 	user, err := uc.userRepo.FindByEmail(ctx, dto.Email)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrInvalidEmailPassword
 	}
 	// 2. Compare user's salt and password
 	if ok := uc.hasher.CompareHashPassword(user.GetPassword(), user.GetSalt(), dto.Password); !ok {
