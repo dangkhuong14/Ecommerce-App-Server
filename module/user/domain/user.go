@@ -13,12 +13,13 @@ type User struct {
 	password  string
 	salt      string
 	role      Role
+	status    string
 }
 
 // Constructor function for User
 func NewUser(
 	id common.UUID, firstName string, lastName string,
-	email string, password string, salt string, role Role,
+	email string, password string, salt string, status string, role Role,
 ) (*User, error) {
 	return &User{
 		id:        id,
@@ -28,6 +29,7 @@ func NewUser(
 		password:  password,
 		salt:      salt,
 		role:      role,
+		status:    status,
 	}, nil
 }
 
@@ -57,6 +59,10 @@ func (u *User) GetSalt() string {
 
 func (u *User) GetRole() Role {
 	return u.role
+}
+
+func (u *User) GetStatus() string {
+	return u.status
 }
 
 type Role int

@@ -3,6 +3,7 @@ package usecase
 import (
 	"ecommerce/common"
 	"ecommerce/module/product/domain"
+	"log"
 
 	"context"
 
@@ -27,6 +28,9 @@ type CreateNewProductUseCase struct {
 
 func (uc CreateNewProductUseCase) CreateProduct(ctx context.Context, prod *domain.ProductCreationDTO) error {
 	// business logic
+	requester := ctx.Value(common.KeyRequester).(common.Requester)
+
+	log.Println(requester)
 	*prod.Name = strings.TrimSpace(*prod.Name)
 
 	if *prod.Name == "" {

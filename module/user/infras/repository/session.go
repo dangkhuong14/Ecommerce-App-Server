@@ -1,8 +1,11 @@
 package repository
 
-import(
+import (
 	"context"
+	"ecommerce/common"
 	"ecommerce/module/user/domain"
+
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -33,5 +36,19 @@ func (repo *mySQLSession) Create(ctx context.Context, data *domain.Session) erro
 		return err
 	}
 	return nil
+}
+
+func (repo *mySQLSession) Find(ctx context.Context, sessionID string) (*domain.Session, error){
+	// Find session by id
+	var session SessionUpdateDTO
+	if err := repo.db.Table(SESSION_TABLE_NAME).Where("id = ?", common.UUID(uuid.MustParse(sessionID))).First(&session).Error; err != nil {
+		return nil, err
+	}
+
+	sessionEntity, err := session.ToEntity()
+	if err != nil {
+		return nil, err
+	}
+	return sessionEntity, nil
 }
 

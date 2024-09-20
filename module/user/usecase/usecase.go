@@ -58,6 +58,7 @@ type UserRepository interface {
 
 type UserQueryRepository interface {
 	FindByEmail(ctx context.Context, email string) (*domain.User, error)
+	Find(ctx context.Context, userID string) (*domain.User, error)
 }
 
 type UserCommandRepository interface {
@@ -73,4 +74,6 @@ type SessionCommandRepository interface {
 	Create(ctx context.Context, data *domain.Session) error
 }
 
-type SessionQueryRepository interface{}
+type SessionQueryRepository interface {
+	Find(ctx context.Context, sessionID string) (*domain.Session, error)
+}

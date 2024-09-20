@@ -55,6 +55,7 @@ func (uc *registerUC) Register(ctx context.Context, dto EmailPasswordRegistratio
 		dto.Email,
 		hashedPassword,
 		salt,
+		"active",
 		domain.RoleUser,
 	)
 

@@ -63,13 +63,13 @@ func (c cmplxBuilder) BuildUserQueryRepo() usecase.UserQueryRepository {
 }
 
 type userCacheRepo struct {
-	realRepo usecase.UserQueryRepository
+	usecase.UserQueryRepository
 	cache    map[string]*domain.User
 }
 
 func NewUserCacheRepo(realRepo usecase.UserQueryRepository) *userCacheRepo {
 	return &userCacheRepo{
-		realRepo: realRepo,
+		UserQueryRepository: realRepo,
 		cache:    make(map[string]*domain.User),
 	}
 }
@@ -81,7 +81,7 @@ func (u *userCacheRepo) FindByEmail(ctx context.Context, email string) (*domain.
 	}
 
 	// If not in the cache use the mysql repo
-	user, err := u.realRepo.FindByEmail(ctx, email)
+	user, err := u.UserQueryRepository.FindByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	} else {

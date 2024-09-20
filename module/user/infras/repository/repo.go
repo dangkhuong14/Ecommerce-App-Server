@@ -6,6 +6,7 @@ import (
 	"ecommerce/module/user/domain"
 	"errors"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -31,6 +32,7 @@ func (repo mysqlUser) Create(ctx context.Context, data *domain.User) error {
 		Password: data.GetPassword(),
 		Salt: data.GetSalt(),
 		Role: data.GetRole().String(),
+		Status: data.GetStatus(),
 	}
 
 	if err := repo.db.Table(TbName).Create(dto).Error; err != nil {
@@ -52,4 +54,18 @@ func (repo mysqlUser) FindByEmail(ctx context.Context, email string) (*domain.Us
 	}
 	// Transform dto into entity
 	return dto.ToEntity()
+}
+
+func (repo mysqlUser) Find(ctx context.Context, userID string) (*domain.User, error){
+	// Find user by id
+	var user UserDTO
+	if err := repo.db.Table(TbName).Where("id = ?", common.UUID(uuid.MustParse(userID))).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	userEntity, err := user.ToEntity()
+	if err != nil {
+		return nil, err
+	}
+	return userEntity, nil
 }

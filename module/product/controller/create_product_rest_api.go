@@ -1,14 +1,23 @@
 package controller
 
 import (
-	"net/http"
+	"context"
+	"ecommerce/common"
 	"ecommerce/module/product/domain"
-	"gorm.io/gorm"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func (api APIController) CreateProductAPI(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Lấy requester từ context
+		requester := c.MustGet(common.KeyRequester).(common.Requester)
+
+		// Thêm requester vào context
+		ctx := context.WithValue(c.Request.Context(), common.KeyRequester, requester)
+
 		// Parse product data from body
 		var productData domain.ProductCreationDTO
 
@@ -19,7 +28,7 @@ func (api APIController) CreateProductAPI(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := api.createUseCase.CreateProduct(c.Request.Context(), &productData); err != nil {
+		if err := api.createUseCase.CreateProduct(ctx, &productData); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
