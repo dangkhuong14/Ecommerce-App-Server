@@ -4,6 +4,7 @@ import (
 	"context"
 	"ecommerce/common"
 	"ecommerce/module/user/domain"
+	"errors"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -42,6 +43,11 @@ func (repo *mySQLSession) Find(ctx context.Context, sessionID string) (*domain.S
 	// Find session by id
 	var session SessionUpdateDTO
 	if err := repo.db.Table(SESSION_TABLE_NAME).Where("id = ?", common.UUID(uuid.MustParse(sessionID))).First(&session).Error; err != nil {
+		// If record is not found
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, common.ErrRecordNotFound
+		}
+		
 		return nil, err
 	}
 

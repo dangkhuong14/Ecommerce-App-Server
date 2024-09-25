@@ -60,6 +60,11 @@ func (repo mysqlUser) Find(ctx context.Context, userID string) (*domain.User, er
 	// Find user by id
 	var user UserDTO
 	if err := repo.db.Table(TbName).Where("id = ?", common.UUID(uuid.MustParse(userID))).First(&user).Error; err != nil {
+		// If record is not found
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, common.ErrRecordNotFound
+		}
+		
 		return nil, err
 	}
 
