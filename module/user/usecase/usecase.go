@@ -2,18 +2,21 @@ package usecase
 
 import (
 	"context"
+	"ecommerce/common"
 	"ecommerce/module/user/domain"
 )
 
 type UseCase interface {
 	Register(ctx context.Context, dto EmailPasswordRegistrationDTO) error
 	LoginEmailPassword(ctx context.Context, dto EmailPasswordLoginDTO) (*TokenResponseDTO, error)
+	RevokeToken(ctx context.Context, sessionID common.UUID) error
 }
 
 type useCase struct {
 	//Embed
 	*loginEmailPasswordUC
 	*registerUC
+	*revokeTokenUC
 }
 
 type Builder interface {
@@ -29,6 +32,7 @@ func NewUseCaseWithBuilder(b Builder) *useCase {
 	return &useCase{
 		loginEmailPasswordUC: NewLoginEmailPasswordUC(b.BuildUserQueryRepo(), b.BuildSessionCmdRepo(), b.BuildHasher(), b.BuildTokenProvider()),
 		registerUC:           NewRegisterUC(b.BuildUserQueryRepo(), b.BuildUserCmdRepo(), b.BuildHasher()),
+		revokeTokenUC:        NewRevokeTokenUC(b.BuildSessionCmdRepo()),
 	}
 }
 
@@ -72,6 +76,7 @@ type SessionRepository interface {
 
 type SessionCommandRepository interface {
 	Create(ctx context.Context, data *domain.Session) error
+	Delete(ctx context.Context, sessionID common.UUID) error
 }
 
 type SessionQueryRepository interface {

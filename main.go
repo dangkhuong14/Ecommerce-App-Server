@@ -74,11 +74,11 @@ func main() {
 	api := controller.NewAPIController(createProductUseCase)
 
 	// Create Product
-	v1 := r.Group("/v1", middleware.RequireAuth(introspectTokenUC))
+	v1 := r.Group("/v1")
 	{
 		products := v1.Group("products")
 		{
-			products.POST("", api.CreateProductAPI(db))
+			products.POST("", middleware.RequireAuth(introspectTokenUC), api.CreateProductAPI(db))
 		}
 	}
 
@@ -95,7 +95,12 @@ func main() {
 
 	// use case with complex builder
 	userUseCaseWithCmplxBuilder := userusecase.NewUseCaseWithBuilder(userbuilder.NewCmplxBuilder(userbuilder.NewSimpleBuilder(db, tokenProvider)))
-	httpservice.NewUserService(userUseCaseWithCmplxBuilder).Routes(v1)
+	userService := httpservice.NewUserService(userUseCaseWithCmplxBuilder)
+	userService.Routes(v1)
+
+	// revoke token dependencies
+	
+	v1.DELETE("/revoke-token", middleware.RequireAuth(introspectTokenUC), userService.HandleRevokeToken())
 
 	r.Run(":3000")
 }

@@ -58,3 +58,14 @@ func (repo *mySQLSession) Find(ctx context.Context, sessionID string) (*domain.S
 	return sessionEntity, nil
 }
 
+func (repo *mySQLSession) Delete(ctx context.Context, sessionID common.UUID) error{
+	if err := repo.db.Debug().Table(SESSION_TABLE_NAME).Where("id = ?", sessionID).Delete(&SessionDTO{}).Error; err != nil {
+		// If record is not found
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return common.ErrRecordNotFound
+		}
+		return err
+	}
+	return nil
+}
+

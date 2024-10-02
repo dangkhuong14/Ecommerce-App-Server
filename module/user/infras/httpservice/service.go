@@ -1,6 +1,7 @@
 package httpservice
 
 import (
+	"ecommerce/common"
 	"ecommerce/module/user/usecase"
 	"net/http"
 
@@ -63,6 +64,37 @@ func (s Service) handleEmailPasswordLogin() gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{
 			"data": token,
 		})
+	}
+}
+
+func (s Service) HandleRevokeToken() gin.HandlerFunc {
+	return func(c *gin.Context){
+		// Get requester from Gin context
+		requester, ok := c.Get(common.KeyRequester)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "please login to make this action",
+			})
+			return
+		}
+		// type assertion
+		r, ok := requester.(common.Requester)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "something went wrong",
+			})
+			return
+		}
+
+		// Revoke token
+		err := s.uc.RevokeToken(c, r.TokenId())
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"data": true})
 	}
 }
 
