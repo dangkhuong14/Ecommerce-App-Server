@@ -18,3 +18,7 @@ type TokenResponseDTO struct {
 	RefreshToken      string `json:"refresh_token"`
 	RefreshTokenExpIn int    `json:"refresh_token_exp"`
 }
+
+type RefreshTokenDTO struct {
+	RefreshToken string `json:"refresh_token"`
+}

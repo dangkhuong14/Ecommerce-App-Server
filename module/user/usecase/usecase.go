@@ -10,6 +10,7 @@ type UseCase interface {
 	Register(ctx context.Context, dto EmailPasswordRegistrationDTO) error
 	LoginEmailPassword(ctx context.Context, dto EmailPasswordLoginDTO) (*TokenResponseDTO, error)
 	RevokeToken(ctx context.Context, sessionID common.UUID) error
+	RefreshToken(ctx context.Context, refreshToken string) (*TokenResponseDTO, error)
 }
 
 type useCase struct {
@@ -17,6 +18,7 @@ type useCase struct {
 	*loginEmailPasswordUC
 	*registerUC
 	*revokeTokenUC
+	*refreshTokendUC
 }
 
 type Builder interface {
@@ -24,6 +26,7 @@ type Builder interface {
 	BuildUserCmdRepo() UserCommandRepository
 	BuildHasher() Hasher
 	BuildTokenProvider() TokenProvider
+	BuildSessionRepo() SessionRepository
 	BuildSessionQueryRepo() SessionQueryRepository
 	BuildSessionCmdRepo() SessionCommandRepository
 }
@@ -33,6 +36,7 @@ func NewUseCaseWithBuilder(b Builder) *useCase {
 		loginEmailPasswordUC: NewLoginEmailPasswordUC(b.BuildUserQueryRepo(), b.BuildSessionCmdRepo(), b.BuildHasher(), b.BuildTokenProvider()),
 		registerUC:           NewRegisterUC(b.BuildUserQueryRepo(), b.BuildUserCmdRepo(), b.BuildHasher()),
 		revokeTokenUC:        NewRevokeTokenUC(b.BuildSessionCmdRepo()),
+		refreshTokendUC:      NewRefreshTokenUC(b.BuildUserQueryRepo(), b.BuildSessionRepo(), b.BuildHasher(), b.BuildTokenProvider()),
 	}
 }
 
@@ -81,4 +85,5 @@ type SessionCommandRepository interface {
 
 type SessionQueryRepository interface {
 	Find(ctx context.Context, sessionID string) (*domain.Session, error)
+	FindByRefreshToken(ctx context.Context, refreshToken string) (*domain.Session, error)
 }

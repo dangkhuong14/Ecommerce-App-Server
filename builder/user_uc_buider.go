@@ -39,6 +39,10 @@ func (s simpleBuilder) BuildTokenProvider() usecase.TokenProvider {
 	return s.tp
 }
 
+func (s simpleBuilder) BuildSessionRepo() usecase.SessionRepository {
+	return repository.NewMysqlSession(s.db)
+}
+
 func (s simpleBuilder) BuildSessionQueryRepo() usecase.SessionQueryRepository {
 	return repository.NewMysqlSession(s.db)
 }

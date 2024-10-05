@@ -98,8 +98,35 @@ func (s Service) HandleRevokeToken() gin.HandlerFunc {
 	}
 }
 
+func (s Service) handleRefreshToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var refreshTokenDTO usecase.RefreshTokenDTO
+
+		if err := c.BindJSON(&refreshTokenDTO); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		tokenResponse, err := s.uc.RefreshToken(c, refreshTokenDTO.RefreshToken)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": tokenResponse,
+		})
+		
+	}
+}
+
 func (s Service) Routes(g *gin.RouterGroup) {
 	g.POST("/register", s.handleRegistration())
 	g.POST("/login", s.handleEmailPasswordLogin())
+	g.POST("/refresh-token", s.handleRefreshToken())
 }
 

@@ -58,6 +58,25 @@ func (repo *mySQLSession) Find(ctx context.Context, sessionID string) (*domain.S
 	return sessionEntity, nil
 }
 
+func (repo *mySQLSession) FindByRefreshToken(ctx context.Context, refreshToken string) (*domain.Session, error){
+	// Find session by id
+	var session SessionUpdateDTO
+	if err := repo.db.Table(SESSION_TABLE_NAME).Where("refresh_token = ?", refreshToken).First(&session).Error; err != nil {
+		// If record is not found
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, common.ErrRecordNotFound
+		}
+		
+		return nil, err
+	}
+
+	sessionEntity, err := session.ToEntity()
+	if err != nil {
+		return nil, err
+	}
+	return sessionEntity, nil
+}
+
 func (repo *mySQLSession) Delete(ctx context.Context, sessionID common.UUID) error{
 	if err := repo.db.Debug().Table(SESSION_TABLE_NAME).Where("id = ?", sessionID).Delete(&SessionDTO{}).Error; err != nil {
 		// If record is not found
