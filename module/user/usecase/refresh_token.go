@@ -5,6 +5,8 @@ import (
 	"ecommerce/common"
 	"ecommerce/module/user/domain"
 	"time"
+
+	"github.com/viettranx/service-context/core"
 )
 
 type refreshTokendUC struct {
@@ -30,22 +32,22 @@ func (uc *refreshTokendUC) RefreshToken(ctx context.Context, refreshToken string
 	// 1. Find session by refresh token and check if it is expired
 	session, err := uc.sessionRepo.FindByRefreshToken(ctx, refreshToken)
 	if err != nil {
-		return nil, err
+		return nil, core.ErrBadRequest.WithWrap(err).WithDebug(err.Error()).WithError("Can not find this token")
 	}
 
 	// if refresh token's expire time is before now: this means this token is expired
 	if session.GetRefreshExpAt().Before(time.Now().UTC()) {
-		return nil, domain.ErrRefreshTokenExpired
+		return nil, core.ErrBadRequest.WithError(domain.ErrRefreshTokenExpired.Error())
 	}
 
 	// 2. Find user by id and check user's status
 	user, err := uc.userRepo.Find(ctx, session.GetUserID().String())
 	if err != nil {
-		return nil, err
+		return nil, core.ErrBadRequest.WithWrap(err).WithDebug(err.Error()).WithError("Can not find session's user")
 	}
 
 	if user.GetStatus() == "banned" {
-		return nil, domain.ErrUserBanned
+		return nil, core.ErrForbidden.WithError(domain.ErrUserBanned.Error())
 	}
 
 	// 3. Generate new JWT payload: session id, user id
@@ -55,7 +57,7 @@ func (uc *refreshTokendUC) RefreshToken(ctx context.Context, refreshToken string
 	token, err := uc.tokenProvider.IssueToken(ctx, newSessionID.String(), user.GetID().String())
 
 	if err != nil {
-		return nil, err
+		return nil, core.ErrInternalServerError.WithWrap(err).WithDebug(err.Error()).WithError("Can not issue new token")
 	}
 
 	// Generate random string for refresh token
@@ -68,7 +70,7 @@ func (uc *refreshTokendUC) RefreshToken(ctx context.Context, refreshToken string
 	newSession := domain.NewSession(newSessionID, user.GetID(), newRefreshToken, accessExpAt, refreshExpAt)
 
 	if err := uc.sessionRepo.Create(ctx, newSession); err != nil {
-		return nil, err
+		return nil, core.ErrInternalServerError.WithWrap(err).WithDebug(err.Error())
 	}
 
 	tokenResponseDTO := TokenResponseDTO{

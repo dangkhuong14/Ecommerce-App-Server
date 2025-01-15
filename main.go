@@ -35,6 +35,7 @@ func main() {
 
 	// gin.SetMode(gin.ReleaseMode)
 
+	// Create service context with component initialized
 	sv := newService()
 
 	sv.OutEnv()
@@ -87,10 +88,10 @@ func main() {
 	// use case with simple builder
 	// userUseCaseWithBuilder := userusecase.NewUseCaseWithBuilder(userbuilder.NewSimpleBuilder(db, tokenProvider))
 
-	
+
 	// use case with complex builder
 	userUseCaseWithCmplxBuilder := userusecase.NewUseCaseWithBuilder(userbuilder.NewCmplxBuilder(userbuilder.NewSimpleBuilder(db, tokenProvider)))
-	userService := httpservice.NewUserService(userUseCaseWithCmplxBuilder)
+	userService := httpservice.NewUserService(userUseCaseWithCmplxBuilder, sv)
 	userService.Routes(v1)
 
 	// revoke token dependencies

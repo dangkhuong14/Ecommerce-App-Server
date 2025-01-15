@@ -8,12 +8,12 @@ import (
 
 type UserDTO struct {
 	Id        common.UUID `gorm:"column:id"`
-	FirstName string      `gorm:"column:first_name"`
-	LastName  string      `gorm:"column:last_name"`
-	Email     string      `gorm:"column:email"`
-	Password  string      `gorm:"column:password"`
+	FirstName string      `gorm:"column:first_name;not null"`
+	LastName  string      `gorm:"column:last_name;not null"` 
+	Email     string      `gorm:"column:email;not null"`     
+	Password  string      `gorm:"column:password;not null"`  
 	Salt      string      `gorm:"column:salt"`
-	Role      string      `gorm:"column:role"`
+	Role      string      `gorm:"column:role;not null"`
 	Status    string      `gorm:"column:status"`
 }
 

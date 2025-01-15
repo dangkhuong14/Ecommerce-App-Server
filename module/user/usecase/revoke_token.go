@@ -3,6 +3,8 @@ package usecase
 import (
 	"context"
 	"ecommerce/common"
+
+	"github.com/viettranx/service-context/core"
 )
 
 type revokeTokenUC struct {
@@ -21,7 +23,7 @@ func (u *revokeTokenUC) RevokeToken(ctx context.Context, sessionID common.UUID) 
 	// Delete token
 	err := u.sessionCmdRepo.Delete(ctx, sessionID)
 	if err != nil {
-		return err
+		return core.ErrInternalServerError.WithDebug(err.Error()).WithError("Can not log out right now, something went wrong")
 	}
 	return nil
 }

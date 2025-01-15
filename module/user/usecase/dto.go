@@ -1,24 +1,24 @@
 package usecase
 
 type EmailPasswordRegistrationDTO struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
+	FirstName string `json:"first_name" binding:"required"`  // Không được rỗng
+	LastName  string `json:"last_name" binding:"required"`   // Không được rỗng
+	Email     string `json:"email" binding:"required,email"` // Không được rỗng, phải đúng định dạng email
+	Password  string `json:"password" binding:"required"`    // Không được rỗng
 }
 
 type EmailPasswordLoginDTO struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
 }
 
 type TokenResponseDTO struct {
 	AccessToken       string `json:"access_token"`
-	AccessTokenExpIn   int    `json:"token_exp_in"`
+	AccessTokenExpIn  int    `json:"token_exp_in"`
 	RefreshToken      string `json:"refresh_token"`
 	RefreshTokenExpIn int    `json:"refresh_token_exp"`
 }
 
 type RefreshTokenDTO struct {
-	RefreshToken string `json:"refresh_token"`
+	RefreshToken string `json:"refresh_token" binding:"required"`
 }

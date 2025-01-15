@@ -5,6 +5,8 @@ import (
 	"ecommerce/common"
 	"ecommerce/module/user/domain"
 	"time"
+
+	"github.com/viettranx/service-context/core"
 )
 
 type loginEmailPasswordUC struct {
@@ -30,11 +32,11 @@ func (uc *loginEmailPasswordUC) LoginEmailPassword(ctx context.Context, dto Emai
 	// 1. Find user by email
 	user, err := uc.userRepo.FindByEmail(ctx, dto.Email)
 	if err != nil {
-		return nil, domain.ErrInvalidEmailPassword
+		return nil, core.ErrBadRequest.WithWrap(err).WithDebug(err.Error()).WithError(domain.ErrInvalidEmailPassword.Error())
 	}
 	// 2. Compare user's salt and password
 	if ok := uc.hasher.CompareHashPassword(user.GetPassword(), user.GetSalt(), dto.Password); !ok {
-		return nil, domain.ErrInvalidEmailPassword
+		return nil, core.ErrBadRequest.WithDebug("User's password is incorrect").WithError(domain.ErrInvalidEmailPassword.Error())
 	}
 	// 3. Generate JWT payload: session id, user id
 	// Pre generate session id
@@ -43,7 +45,7 @@ func (uc *loginEmailPasswordUC) LoginEmailPassword(ctx context.Context, dto Emai
 	token, err := uc.tokenProvider.IssueToken(ctx, newSessionID.String(), user.GetID().String())
 
 	if err != nil {
-		return nil, err
+		return nil, core.ErrInternalServerError.WithWrap(err).WithDebug(err.Error())
 	}
 	// Generate random string for refresh token
 	refreshToken, _ := uc.hasher.RandomStr(16)
@@ -55,7 +57,7 @@ func (uc *loginEmailPasswordUC) LoginEmailPassword(ctx context.Context, dto Emai
 	newSession := domain.NewSession(newSessionID, user.GetID(), refreshToken, accessExpAt, refreshExpAt)
 
 	if err := uc.sessionRepo.Create(ctx, newSession); err != nil {
-		return nil, err
+		return nil, core.ErrInternalServerError.WithWrap(err).WithDebug(err.Error())
 	}
 
 	tokenResponseDTO := TokenResponseDTO{

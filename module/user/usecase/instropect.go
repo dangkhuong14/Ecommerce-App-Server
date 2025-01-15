@@ -3,10 +3,11 @@ package usecase
 import (
 	"context"
 	"ecommerce/common"
-	"errors"
+	"ecommerce/module/user/domain"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/viettranx/service-context/core"
 )
 
 type TokenParser interface {
@@ -31,22 +32,22 @@ func (uc *IntrospectTokenUC) IntrospectToken(ctx context.Context, token string) 
 	// 1. Parse token, get user id, token id
 	claims, err := uc.tokenParser.ParseToken(ctx, token)
 	if err != nil {
-		return nil, err
+		return nil, core.ErrBadRequest.WithWrap(err).WithDebug(err.Error()).WithError("Can not parse this token")
 	}
 
 	// 2. Find session by session id
 	if _, err := uc.sessionQueryRepo.Find(ctx, claims.ID); err != nil {
-		return nil, err
+		return nil, core.ErrBadRequest.WithWrap(err).WithDebug(err.Error()).WithError("Can not find session")
 	}
 	// 3. Find user by user id
 	user, err := uc.userQueryRepo.Find(ctx, claims.Subject)
 
 	if err != nil {
-		return nil, err
+		return nil, core.ErrBadRequest.WithWrap(err).WithDebug(err.Error()).WithError("Can not find user")
 	}
 
 	if user.GetStatus() == "banned"{
-		return nil, errors.New("this user is banned")
+		return nil, core.ErrForbidden.WithError(domain.ErrUserBanned.Error())
 	}
 
 	return common.NewRequester(
