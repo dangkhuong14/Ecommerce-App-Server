@@ -10,13 +10,13 @@ import (
 type loginEmailPasswordUC struct {
 	userRepo      UserQueryRepository
 	sessionRepo   SessionCommandRepository
-	tokenProvider TokenProvider
+	tokenProvider common.TokenProvider
 	hasher        Hasher
 }
 
 func NewLoginEmailPasswordUC(
 	userRepo UserQueryRepository, sessionRepo SessionCommandRepository,
-	hasher Hasher, tokenProvider TokenProvider,
+	hasher Hasher, tokenProvider common.TokenProvider,
 ) *loginEmailPasswordUC {
 	return &loginEmailPasswordUC{
 		userRepo:      userRepo,

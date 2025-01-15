@@ -10,13 +10,13 @@ import (
 type refreshTokendUC struct {
 	userRepo      UserQueryRepository
 	sessionRepo   SessionRepository
-	tokenProvider TokenProvider
+	tokenProvider common.TokenProvider
 	hasher        Hasher
 }
 
 func NewRefreshTokenUC(
 	userRepo UserQueryRepository, sessionRepo SessionRepository,
-	hasher Hasher, tokenProvider TokenProvider,
+	hasher Hasher, tokenProvider common.TokenProvider,
 ) *refreshTokendUC {
 	return &refreshTokendUC{
 		userRepo:      userRepo,

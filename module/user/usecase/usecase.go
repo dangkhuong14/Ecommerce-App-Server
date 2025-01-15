@@ -25,7 +25,7 @@ type Builder interface {
 	BuildUserQueryRepo() UserQueryRepository
 	BuildUserCmdRepo() UserCommandRepository
 	BuildHasher() Hasher
-	BuildTokenProvider() TokenProvider
+	BuildTokenProvider() common.TokenProvider
 	BuildSessionRepo() SessionRepository
 	BuildSessionQueryRepo() SessionQueryRepository
 	BuildSessionCmdRepo() SessionCommandRepository
@@ -40,18 +40,13 @@ func NewUseCaseWithBuilder(b Builder) *useCase {
 	}
 }
 
-func NewUseCase(repo UserRepository, sessionRepo SessionRepository, hasher Hasher, tokenProvider TokenProvider) *useCase {
+func NewUseCase(repo UserRepository, sessionRepo SessionRepository, hasher Hasher, tokenProvider common.TokenProvider) *useCase {
 	return &useCase{
 		loginEmailPasswordUC: NewLoginEmailPasswordUC(repo, sessionRepo, hasher, tokenProvider),
 		registerUC:           NewRegisterUC(repo, repo, hasher),
 	}
 }
 
-type TokenProvider interface {
-	IssueToken(ctx context.Context, id, sub string) (token string, err error)
-	TokenExpireInSeconds() int
-	RefreshExpireInSeconds() int
-}
 
 type Hasher interface {
 	RandomStr(length int) (string, error)

@@ -2,11 +2,10 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"net/http"
 
-	// "ecommerce/common"
+	"ecommerce/common"
 	"ecommerce/component"
 	"ecommerce/middleware"
 	"ecommerce/module/product/controller"
@@ -19,47 +18,45 @@ import (
 	userusecase "ecommerce/module/user/usecase"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+
+	sctx "github.com/viettranx/service-context"
+	"github.com/viettranx/service-context/component/gormc"
 )
 
-func main() {
-	// Checking that an environment variable is present or not.
-	mysqlConnStr, ok := os.LookupEnv("MYSQL_CONNECTION")
-	if !ok {
-		log.Fatalln("Missing MySQL connection string")
-	}
-
-	dsn := mysqlConnStr
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-	db = db.Debug()
-
-	if err != nil {
-		log.Fatalln("Cannot connect to MySQL:", err)
-	}
-	log.Println("Connected to MySQL:", db)
-
-	// Set up auth middleware dependencies
-	// Set up User service dependencies
-	jwt_secret := os.Getenv("JWT_SECRET")
-
-	tokenProvider := component.NewJWTProvider(
-		jwt_secret,
-		component.DefaultExpireTokenInSeconds,
-		component.DefaultExpireRefreshInSeconds,
+func newService() sctx.ServiceContext {
+	newSctx := sctx.NewServiceContext(sctx.WithName("G11"),
+		sctx.WithComponent(gormc.NewGormDB(common.KeyGormComponent, "")),
+		sctx.WithComponent(component.NewJWT(common.KeyJwtComponent)),
 	)
+	return newSctx
+}
+
+func main() {
+
+	// gin.SetMode(gin.ReleaseMode)
+
+	sv := newService()
+
+	sv.OutEnv()
+
+	if err := sv.Load(); err != nil {
+		log.Fatalln("Error loading service: ", err)
+	}
+
+	db := sv.MustGet(common.KeyGormComponent).(common.GormCompContext).GetDB()
+	tokenProvider := sv.MustGet(common.KeyJwtComponent).(common.TokenProvider)
 
 	userRepo := repository.NewMysqlUser(db)
 	sessionRepo := repository.NewMysqlSession(db)
 
 	introspectTokenUC := userusecase.NewIntrospectTokenUC(userRepo, sessionRepo, tokenProvider)
 
-	// Gin API Ping
 	r := gin.Default()
 
 	// r.Use(middleware.RequireAuth(introspectTokenUC))
+	r.Use(middleware.Recovery())
 
+	// Gin API Ping
 	r.GET("/ping", middleware.RequireAuth(introspectTokenUC), func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
@@ -82,10 +79,7 @@ func main() {
 		}
 	}
 
-
-
 	// use case with normal constructor
-
 	// userRepo := repository.NewMysqlUser(db)
 	// sessionRepo := repository.NewMysqlSession(db)
 	// userUseCase := userusecase.NewUseCase(userRepo, sessionRepo, &common.Hasher{}, tokenProvider)
@@ -93,13 +87,14 @@ func main() {
 	// use case with simple builder
 	// userUseCaseWithBuilder := userusecase.NewUseCaseWithBuilder(userbuilder.NewSimpleBuilder(db, tokenProvider))
 
+	
 	// use case with complex builder
 	userUseCaseWithCmplxBuilder := userusecase.NewUseCaseWithBuilder(userbuilder.NewCmplxBuilder(userbuilder.NewSimpleBuilder(db, tokenProvider)))
 	userService := httpservice.NewUserService(userUseCaseWithCmplxBuilder)
 	userService.Routes(v1)
 
 	// revoke token dependencies
-	
+
 	v1.DELETE("/revoke-token", middleware.RequireAuth(introspectTokenUC), userService.HandleRevokeToken())
 
 	r.Run(":3000")

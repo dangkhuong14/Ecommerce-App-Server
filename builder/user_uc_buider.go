@@ -13,10 +13,10 @@ import (
 
 type simpleBuilder struct {
 	db *gorm.DB
-	tp usecase.TokenProvider
+	tp common.TokenProvider
 }
 
-func NewSimpleBuilder(db *gorm.DB, tp usecase.TokenProvider) simpleBuilder {
+func NewSimpleBuilder(db *gorm.DB, tp common.TokenProvider) simpleBuilder {
 	return simpleBuilder{
 		db: db,
 		tp: tp,
@@ -35,7 +35,7 @@ func (s simpleBuilder) BuildHasher() usecase.Hasher {
 	return &common.Hasher{}
 }
 
-func (s simpleBuilder) BuildTokenProvider() usecase.TokenProvider {
+func (s simpleBuilder) BuildTokenProvider() common.TokenProvider {
 	return s.tp
 }
 
