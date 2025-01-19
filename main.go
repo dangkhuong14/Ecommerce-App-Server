@@ -8,6 +8,7 @@ import (
 	"ecommerce/common"
 	"ecommerce/component"
 	"ecommerce/middleware"
+	"ecommerce/module/image"
 	"ecommerce/module/product/controller"
 	"ecommerce/module/product/domain/usecase"
 	mysqlRepo "ecommerce/module/product/repository/mysql"
@@ -27,6 +28,7 @@ func newService() sctx.ServiceContext {
 	newSctx := sctx.NewServiceContext(sctx.WithName("G11"),
 		sctx.WithComponent(gormc.NewGormDB(common.KeyGormComponent, "")),
 		sctx.WithComponent(component.NewJWT(common.KeyJwtComponent)),
+		sctx.WithComponent(component.NewAWSS3Provider(common.KeyAwsS3Component)),
 	)
 	return newSctx
 }
@@ -66,6 +68,7 @@ func main() {
 		// log.Println(requester)
 	})
 
+	// <------------------------Product service-------------------------->
 	// Set up dependencies
 	mysqlRepo := mysqlRepo.NewMysqlRepository(db)
 	createProductUseCase := usecase.NewCreateProductUseCase(mysqlRepo)
@@ -79,6 +82,8 @@ func main() {
 			products.POST("", middleware.RequireAuth(introspectTokenUC), api.CreateProductAPI(db))
 		}
 	}
+
+	// <------------------------User service-------------------------->
 
 	// use case with normal constructor
 	// userRepo := repository.NewMysqlUser(db)
@@ -97,6 +102,10 @@ func main() {
 	// revoke token dependencies
 
 	v1.DELETE("/revoke-token", middleware.RequireAuth(introspectTokenUC), userService.HandleRevokeToken())
+
+	// <------------------------Image service-------------------------->
+	imageService := image.NewImageService(sv)
+	imageService.Routes(v1)
 
 	r.Run(":3000")
 }

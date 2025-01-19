@@ -11,6 +11,7 @@ const (
 	KeyRequester     = "Requester"
 	KeyGormComponent = "gorm"
 	KeyJwtComponent  = "jwt"
+	KeyAwsS3Component = "aws_s3"
 )
 
 type GormCompContext interface {
