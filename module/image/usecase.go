@@ -46,45 +46,11 @@ func (uc imageUseCase) UploadImage(ctx context.Context, dto UploadImageDTO) (*Im
 type ImageSaver interface {
 	SaveFileUploaded(ctx context.Context, data []byte, dst string) error
 	GetName() string
+	GetDomain() string
 }
 
 type ImageCmdRepo interface {
 	Create(ctx context.Context, entity *Image) error
-}
-
-type UploadImageDTO struct {
-	Name     string
-	FileName string
-	FileType string
-	FileSize int
-	FileData []byte
-}
-
-// Replace ID from UUID to string
-type ImageResponseDTO struct {
-	ID              string    `json:"id"`
-	Title           string    `json:"title"`
-	FileName        string    `json:"file_name"`
-	FileSize        int       `json:"file_size"`
-	FileType        string    `json:"file_type"`
-	StorageProvider string    `json:"storage_provider"`
-	Status          string    `json:"status"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
-}
-
-func toImageResponseDTO(image *Image) *ImageResponseDTO {
-	return &ImageResponseDTO{
-		ID:              image.ID.String(), // UUID -> string
-		Title:           image.Title,
-		FileName:        image.FileName,
-		FileSize:        image.FileSize,
-		FileType:        image.FileType,
-		StorageProvider: image.StorageProvider,
-		Status:          image.Status,
-		CreatedAt:       image.CreatedAt,
-		UpdatedAt:       image.UpdatedAt,
-	}
 }
 
 var (

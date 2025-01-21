@@ -79,8 +79,10 @@ func (s *ImageService) handleUploadImage() gin.HandlerFunc {
 			common.WriteErrorResponse(c, core.ErrBadRequest.WithError(ErrCannotUploadFile.Error()).WithDebug(err.Error()))
 			return
 		}
-	
-		c.JSON(http.StatusOK, core.ResponseData(toImageResponseDTO(image)))
+		imgResponseDTO := toImageResponseDTO(image)
+		// Set file url to image response
+		imgResponseDTO.setFileUrl(imageSaver.GetDomain())
+		c.JSON(http.StatusOK, core.ResponseData(imgResponseDTO))
 	}
 }
 
