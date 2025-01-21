@@ -1,5 +1,7 @@
 package usecase
 
+import "ecommerce/common"
+
 type EmailPasswordRegistrationDTO struct {
 	FirstName string `json:"first_name" binding:"required"`  // Không được rỗng
 	LastName  string `json:"last_name" binding:"required"`   // Không được rỗng
@@ -21,4 +23,10 @@ type TokenResponseDTO struct {
 
 type RefreshTokenDTO struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+type SingleAvatarChangeDTO struct {
+	ImageID   string           `json:"image_id" binding:"required"`
+	Requester common.Requester `json:"-" binding:"-"`
+	CDNDomain  string           `json:"-" binding:"-"`
 }

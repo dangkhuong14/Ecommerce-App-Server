@@ -11,6 +11,7 @@ type UseCase interface {
 	LoginEmailPassword(ctx context.Context, dto EmailPasswordLoginDTO) (*TokenResponseDTO, error)
 	RevokeToken(ctx context.Context, sessionID common.UUID) error
 	RefreshToken(ctx context.Context, refreshToken string) (*TokenResponseDTO, error)
+	ChangeAvatar(ctx context.Context, dto SingleAvatarChangeDTO) error
 }
 
 type useCase struct {
@@ -19,6 +20,7 @@ type useCase struct {
 	*registerUC
 	*revokeTokenUC
 	*refreshTokendUC
+	*changeAvatarUC
 }
 
 type Builder interface {
@@ -66,6 +68,7 @@ type UserQueryRepository interface {
 
 type UserCommandRepository interface {
 	Create(ctx context.Context, data *domain.User) error
+	UpdateAvatar(ctx context.Context, user *domain.User, avatar *domain.Avatar) error
 }
 
 type SessionRepository interface {

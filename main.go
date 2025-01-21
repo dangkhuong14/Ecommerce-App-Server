@@ -99,10 +99,10 @@ func main() {
 	userService := httpservice.NewUserService(userUseCaseWithCmplxBuilder, sv)
 	userService.Routes(v1)
 
-	// revoke token dependencies
 
 	v1.DELETE("/revoke-token", middleware.RequireAuth(introspectTokenUC), userService.HandleRevokeToken())
-
+	v1.POST("/change-avatar", middleware.RequireAuth(introspectTokenUC), userService.HandleChangeAvatar())
+	
 	// <------------------------Image service-------------------------->
 	imageService := image.NewImageService(sv)
 	imageService.Routes(v1)

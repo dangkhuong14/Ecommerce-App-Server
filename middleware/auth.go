@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/viettranx/service-context/core"
 )
 
 type AuthClient interface {
@@ -18,7 +19,7 @@ func RequireAuth(ac AuthClient) func(*gin.Context) {
 		token, err := extractTokenFromHeaderString(c.GetHeader("Authorization"))
 
 		if err != nil {
-			common.WriteErrorResponse(c, err)
+			common.WriteErrorResponse(c, core.ErrUnauthorized.WithDebug(err.Error()))
 			c.Abort()
 			return
 		}

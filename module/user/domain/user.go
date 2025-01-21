@@ -14,13 +14,27 @@ type User struct {
 	salt      string
 	role      Role
 	status    string
+	avatar    *Avatar
+}
+
+type Avatar struct {
+	ImageID   common.UUID
+	ImageName string
+	ImageCDN  string
+}
+
+func NewAvatar(imageID common.UUID, imageName string, imageCDN string) (*Avatar, error) {
+	return &Avatar{
+		ImageID:   imageID,
+		ImageName: imageName,
+		ImageCDN:  imageCDN,
+	}, nil
 }
 
 // Constructor function for User
 func NewUser(
 	id common.UUID, firstName string, lastName string,
-	email string, password string, salt string, status string, role Role,
-) (*User, error) {
+	email string, password string, salt string, status string, role Role, avatar *Avatar) (*User, error) {
 	return &User{
 		id:        id,
 		firstName: firstName,
@@ -30,6 +44,7 @@ func NewUser(
 		salt:      salt,
 		role:      role,
 		status:    status,
+		avatar:    avatar,
 	}, nil
 }
 
@@ -83,4 +98,12 @@ func GetRole(s string) Role {
 	default:
 		return RoleUser
 	}
+}
+
+func (u *User) GetAvatar() *Avatar {
+	return u.avatar
+}
+
+func (u *User) SetAvatar(avatar *Avatar) {
+	u.avatar = avatar
 }

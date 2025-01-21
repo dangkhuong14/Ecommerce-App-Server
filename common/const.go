@@ -25,3 +25,9 @@ type TokenProvider interface {
 	RefreshExpireInSeconds() int
 	ParseToken(ctx context.Context, tokenString string) (claims *jwt.RegisteredClaims, err error)
 }
+
+type ImageSaver interface {
+	SaveFileUploaded(ctx context.Context, data []byte, dst string) error
+	GetName() string
+	GetDomain() string
+}
