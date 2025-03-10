@@ -22,6 +22,7 @@ import (
 
 	sctx "github.com/viettranx/service-context"
 	"github.com/viettranx/service-context/component/gormc"
+	productservice "ecommerce/module/product/infras"
 )
 
 func newService() sctx.ServiceContext {
@@ -106,6 +107,10 @@ func main() {
 	// <------------------------Image service-------------------------->
 	imageService := image.NewImageService(sv)
 	imageService.Routes(v1)
+
+	// <------------------------Product service-------------------------->
+	productService := productservice.NewHttpService(sv)
+	productService.Routes(v1)
 
 	r.Run(":3000")
 }

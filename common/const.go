@@ -8,16 +8,15 @@ import (
 )
 
 const (
-	KeyRequester     = "Requester"
-	KeyGormComponent = "gorm"
-	KeyJwtComponent  = "jwt"
+	KeyRequester      = "Requester"
+	KeyGormComponent  = "gorm"
+	KeyJwtComponent   = "jwt"
 	KeyAwsS3Component = "aws_s3"
 )
 
 type GormCompContext interface {
 	GetDB() *gorm.DB
 }
-
 
 type TokenProvider interface {
 	IssueToken(ctx context.Context, id, sub string) (token string, err error)
@@ -30,4 +29,25 @@ type ImageSaver interface {
 	SaveFileUploaded(ctx context.Context, data []byte, dst string) error
 	GetName() string
 	GetDomain() string
+}
+
+type Paging struct {
+	Page  int `json:"page" form:"page"`
+	Total int `json:"total"`
+	Limit int `json:"limit" form:"limit"`
+}
+
+// Use pointer receiver because process will change instance value
+func (p *Paging) Process() {
+	if p.Limit < 1 {
+		p.Limit = 10
+	}
+
+	if p.Limit > 200 {
+		p.Limit = 200
+	}
+
+	if p.Page < 1 {
+		p.Page = 1
+	}
 }

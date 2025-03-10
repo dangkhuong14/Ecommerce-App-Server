@@ -2,6 +2,8 @@ package common
 
 import (
 	"database/sql/driver"
+	"encoding/json"
+
 	"github.com/google/uuid"
 )
 
@@ -26,4 +28,10 @@ func (id UUID) Value() (driver.Value, error) {
 // Method chuyển UUID từ byte slice thành chuỗi
 func (id UUID) String() string {
 	return uuid.UUID(id).String()
+}
+
+func (id UUID) MarshalJSON() ([]byte, error) {
+    // Chuyển đổi UUID sang string bằng hàm String() của common.UUID
+    s := id.String()
+    return json.Marshal(s)
 }
