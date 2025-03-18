@@ -3,6 +3,7 @@ package infras
 import (
 	"ecommerce/common"
 	"ecommerce/module/product/domain/query"
+	"ecommerce/module/product/repository/rpchttp"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,10 +24,20 @@ func (s httpService) handleListProduct() gin.HandlerFunc {
 		var param query.ListProductQueryParam
 		c.Bind(&param)
 
-		// Create new use case
+		// Get category rpc url in config component
+		urlCategoryRPC := s.sctx.MustGet(common.KeyConfigComponent).(common.ConfigCompContext).GetURLRPCCategory()
+
+		// Create list product use case
 		listProductQuery := query.NewListProductQuery(s.sctx)
+
+		// Create Category repo (rpc category)
+		rpcCategoryRepo := rpchttp.NewRPCFindCategoriesByIDs(urlCategoryRPC)
+
+		// Create list product wrapper use case
+		listProductWrapper := query.NewListProductWrapper(listProductQuery, rpcCategoryRepo)
+
 		// Call use case's method
-		results, err := listProductQuery.Execute(c.Request.Context(), &param)
+		results, err := listProductWrapper.Execute(c.Request.Context(), &param)
 		if err != nil {
 			common.WriteErrorResponse(c, err)
 		}

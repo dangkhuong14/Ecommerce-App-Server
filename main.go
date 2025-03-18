@@ -23,6 +23,8 @@ import (
 	sctx "github.com/viettranx/service-context"
 	"github.com/viettranx/service-context/component/gormc"
 	productservice "ecommerce/module/product/infras"
+
+	categoryservice "ecommerce/module/category/infras/httpservice"
 )
 
 func newService() sctx.ServiceContext {
@@ -30,6 +32,7 @@ func newService() sctx.ServiceContext {
 		sctx.WithComponent(gormc.NewGormDB(common.KeyGormComponent, "")),
 		sctx.WithComponent(component.NewJWT(common.KeyJwtComponent)),
 		sctx.WithComponent(component.NewAWSS3Provider(common.KeyAwsS3Component)),
+		sctx.WithComponent(component.NewConfigComponent(common.KeyConfigComponent)),
 	)
 	return newSctx
 }
@@ -111,6 +114,10 @@ func main() {
 	// <------------------------Product service-------------------------->
 	productService := productservice.NewHttpService(sv)
 	productService.Routes(v1)
+
+	// <------------------------Category service-------------------------->
+	catService := categoryservice.NewHttpService(sv) 
+	catService.Routes(v1)
 
 	r.Run(":3000")
 }

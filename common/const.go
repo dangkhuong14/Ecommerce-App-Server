@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	KeyRequester      = "Requester"
-	KeyGormComponent  = "gorm"
-	KeyJwtComponent   = "jwt"
-	KeyAwsS3Component = "aws_s3"
+	KeyRequester       = "Requester"
+	KeyGormComponent   = "gorm"
+	KeyJwtComponent    = "jwt"
+	KeyAwsS3Component  = "aws_s3"
+	KeyConfigComponent = "config"
 )
 
 type GormCompContext interface {
@@ -29,6 +30,10 @@ type ImageSaver interface {
 	SaveFileUploaded(ctx context.Context, data []byte, dst string) error
 	GetName() string
 	GetDomain() string
+}
+
+type ConfigCompContext interface {
+	GetURLRPCCategory() string
 }
 
 type Paging struct {

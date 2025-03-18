@@ -15,15 +15,13 @@ type ProductDTO struct {
 	CatId    common.UUID  `gorm:"column:category_id" json:"category_id"`
 	Name     string       `gorm:"column:name" json:"name"`
 	Type     string       `gorm:"column:type" json:"type"`
-	Category *CategoryDTO `gorm:"foreignKey:CatId" json:"category,omitempty"`
+	Category *CategoryDTO `gorm:"-" json:"category,omitempty"`
 }
 
 type CategoryDTO struct {
-	Id    common.UUID `gorm:"column:id" json:"id"`
-	Title string      `gorm:"column:title" json:"title"`
+	Id    common.UUID `json:"id"`
+	Title string      `json:"title"`
 }
-
-func (CategoryDTO) TableName() string {return "categories"}
 
 type ListProductFilterParam struct {
 	CateID string `form:"cate_id"`
@@ -45,10 +43,10 @@ func NewListProductQuery(sctx sctx.ServiceContext) listProductQuery {
 func (q *listProductQuery) Execute(ctx context.Context, param *ListProductQueryParam) ([]ProductDTO, error) {
 	var products []ProductDTO
 
-	// Filter by Category ID in query string
 	db := q.sctx.MustGet(common.KeyGormComponent).(common.GormCompContext).GetDB()
 	db = db.Table("products")
-
+	
+	// Filter by Category ID in query string
 	if param.CateID != "" {
 		cateUUID, err := common.ParseUUID(param.CateID)
 		if err != nil {
@@ -68,8 +66,6 @@ func (q *listProductQuery) Execute(ctx context.Context, param *ListProductQueryP
 
 	// Kiem tra cac tham so offset, limit
 	param.Process()
-
-	db = db.Preload("Category")
 
 	// Tính offset dựa trên trang và limit
 	offset := param.Limit * (param.Page - 1)
