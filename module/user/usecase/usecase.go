@@ -33,7 +33,7 @@ type Builder interface {
 	BuildSessionCmdRepo() SessionCommandRepository
 }
 
-func NewUseCaseWithBuilder(b Builder) *useCase {
+func NewUseCaseWithBuilder(b Builder) UseCase {
 	return &useCase{
 		loginEmailPasswordUC: NewLoginEmailPasswordUC(b.BuildUserQueryRepo(), b.BuildSessionCmdRepo(), b.BuildHasher(), b.BuildTokenProvider()),
 		registerUC:           NewRegisterUC(b.BuildUserQueryRepo(), b.BuildUserCmdRepo(), b.BuildHasher()),
