@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package category;
+
+// Name of package to generate go code
+option go_package = "gen/category/";
+
+message CategoryDTO {
+  string id = 1;
+  string title = 2;
+}
+
+message FindCategoriesReq {
+  repeated string ids = 1;
+}
+
+message FindCategoriesRes {
+    repeated CategoryDTO data = 1;
+}
+
+service CategoryProductService {
+  rpc FindCategoriesByIDs (FindCategoriesReq) returns (FindCategoriesRes);
+}

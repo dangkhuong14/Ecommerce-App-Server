@@ -9,6 +9,7 @@ import (
 type configComponent struct {
 	id             string
 	urlRPCCategory string
+	categoryGRPCPort       int
 }
 
 func NewConfigComponent(id string) *configComponent {
@@ -17,7 +18,9 @@ func NewConfigComponent(id string) *configComponent {
 	}
 }
 
-func (c *configComponent) GetURLRPCCategory() string {return c.urlRPCCategory}
+func (c *configComponent) GetURLRPCCategory() string { return c.urlRPCCategory }
+
+func (c *configComponent) GetCategoryGRPCPort() int { return c.categoryGRPCPort }
 
 func (c *configComponent) ID() string { return c.id }
 
@@ -27,6 +30,12 @@ func (c *configComponent) InitFlags() {
 		"url-rpc-category",
 		"http://localhost:3000/v1/category/rpc",
 		"URL of category service using for RPC",
+	)
+	flag.IntVar(
+		&c.categoryGRPCPort,
+		"category-grpc-port",
+		8080,
+		"Port of category's gRPC server",
 	)
 }
 

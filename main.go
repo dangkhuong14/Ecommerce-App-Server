@@ -20,10 +20,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	sctx "github.com/viettranx/service-context"
-	"github.com/viettranx/service-context/component/gormc"
 	productservice "ecommerce/module/product/infras"
 
+	sctx "github.com/viettranx/service-context"
+	"github.com/viettranx/service-context/component/gormc"
+
+	categorygrpcservice "ecommerce/module/category/infras/grpcservice"
 	categoryservice "ecommerce/module/category/infras/httpservice"
 )
 
@@ -49,6 +51,9 @@ func main() {
 	if err := sv.Load(); err != nil {
 		log.Fatalln("Error loading service: ", err)
 	}
+
+	// Get config component from service context
+	configComp := (sv.MustGet(common.KeyConfigComponent)).(common.ConfigCompContext)
 
 	db := sv.MustGet(common.KeyGormComponent).(common.GormCompContext).GetDB()
 	tokenProvider := sv.MustGet(common.KeyJwtComponent).(common.TokenProvider)
@@ -119,5 +124,12 @@ func main() {
 	catService := categoryservice.NewHttpService(sv) 
 	catService.Routes(v1)
 
+	// category's gRPC server
+	go func() {
+		categoryGRPCPort := configComp.GetCategoryGRPCPort()
+		gRPCCategoryServer := categorygrpcservice.NewGRPCCategoryServer(sv, categoryGRPCPort)
+		gRPCCategoryServer.Start()
+	}()
+	// HTTP server
 	r.Run(":3000")
 }

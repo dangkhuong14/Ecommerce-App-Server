@@ -34,6 +34,7 @@ type ImageSaver interface {
 
 type ConfigCompContext interface {
 	GetURLRPCCategory() string
+	GetCategoryGRPCPort() int
 }
 
 type Paging struct {
