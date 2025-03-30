@@ -18,6 +18,6 @@ message FindCategoriesRes {
     repeated CategoryDTO data = 1;
 }
 
-service CategoryProductService {
+service CategoryService {
   rpc FindCategoriesByIDs (FindCategoriesReq) returns (FindCategoriesRes);
 }

@@ -19,102 +19,101 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CategoryProductService_FindCategoriesByIDs_FullMethodName = "/category.CategoryProductService/FindCategoriesByIDs"
+	CategoryService_FindCategoriesByIDs_FullMethodName = "/category.CategoryService/FindCategoriesByIDs"
 )
 
-// CategoryProductServiceClient is the client API for CategoryProductService service.
+// CategoryServiceClient is the client API for CategoryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type CategoryProductServiceClient interface {
+type CategoryServiceClient interface {
 	FindCategoriesByIDs(ctx context.Context, in *FindCategoriesReq, opts ...grpc.CallOption) (*FindCategoriesRes, error)
 }
 
-type categoryProductServiceClient struct {
+type categoryServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewCategoryProductServiceClient(cc grpc.ClientConnInterface) CategoryProductServiceClient {
-	return &categoryProductServiceClient{cc}
+func NewCategoryServiceClient(cc grpc.ClientConnInterface) CategoryServiceClient {
+	return &categoryServiceClient{cc}
 }
 
-func (c *categoryProductServiceClient) FindCategoriesByIDs(ctx context.Context, in *FindCategoriesReq, opts ...grpc.CallOption) (*FindCategoriesRes, error) {
+func (c *categoryServiceClient) FindCategoriesByIDs(ctx context.Context, in *FindCategoriesReq, opts ...grpc.CallOption) (*FindCategoriesRes, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(FindCategoriesRes)
-	err := c.cc.Invoke(ctx, CategoryProductService_FindCategoriesByIDs_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, CategoryService_FindCategoriesByIDs_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// CategoryProductServiceServer is the server API for CategoryProductService service.
-// All implementations must embed UnimplementedCategoryProductServiceServer
+// CategoryServiceServer is the server API for CategoryService service.
+// All implementations must embed UnimplementedCategoryServiceServer
 // for forward compatibility.
-type CategoryProductServiceServer interface {
+type CategoryServiceServer interface {
 	FindCategoriesByIDs(context.Context, *FindCategoriesReq) (*FindCategoriesRes, error)
-	mustEmbedUnimplementedCategoryProductServiceServer()
+	mustEmbedUnimplementedCategoryServiceServer()
 }
 
-// UnimplementedCategoryProductServiceServer must be embedded to have
+// UnimplementedCategoryServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedCategoryProductServiceServer struct{}
+type UnimplementedCategoryServiceServer struct{}
 
-func (UnimplementedCategoryProductServiceServer) FindCategoriesByIDs(context.Context, *FindCategoriesReq) (*FindCategoriesRes, error) {
+func (UnimplementedCategoryServiceServer) FindCategoriesByIDs(context.Context, *FindCategoriesReq) (*FindCategoriesRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindCategoriesByIDs not implemented")
 }
-func (UnimplementedCategoryProductServiceServer) mustEmbedUnimplementedCategoryProductServiceServer() {
-}
-func (UnimplementedCategoryProductServiceServer) testEmbeddedByValue() {}
+func (UnimplementedCategoryServiceServer) mustEmbedUnimplementedCategoryServiceServer() {}
+func (UnimplementedCategoryServiceServer) testEmbeddedByValue()                         {}
 
-// UnsafeCategoryProductServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CategoryProductServiceServer will
+// UnsafeCategoryServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CategoryServiceServer will
 // result in compilation errors.
-type UnsafeCategoryProductServiceServer interface {
-	mustEmbedUnimplementedCategoryProductServiceServer()
+type UnsafeCategoryServiceServer interface {
+	mustEmbedUnimplementedCategoryServiceServer()
 }
 
-func RegisterCategoryProductServiceServer(s grpc.ServiceRegistrar, srv CategoryProductServiceServer) {
-	// If the following call pancis, it indicates UnimplementedCategoryProductServiceServer was
+func RegisterCategoryServiceServer(s grpc.ServiceRegistrar, srv CategoryServiceServer) {
+	// If the following call pancis, it indicates UnimplementedCategoryServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&CategoryProductService_ServiceDesc, srv)
+	s.RegisterService(&CategoryService_ServiceDesc, srv)
 }
 
-func _CategoryProductService_FindCategoriesByIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CategoryService_FindCategoriesByIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FindCategoriesReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CategoryProductServiceServer).FindCategoriesByIDs(ctx, in)
+		return srv.(CategoryServiceServer).FindCategoriesByIDs(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CategoryProductService_FindCategoriesByIDs_FullMethodName,
+		FullMethod: CategoryService_FindCategoriesByIDs_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CategoryProductServiceServer).FindCategoriesByIDs(ctx, req.(*FindCategoriesReq))
+		return srv.(CategoryServiceServer).FindCategoriesByIDs(ctx, req.(*FindCategoriesReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// CategoryProductService_ServiceDesc is the grpc.ServiceDesc for CategoryProductService service.
+// CategoryService_ServiceDesc is the grpc.ServiceDesc for CategoryService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var CategoryProductService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "category.CategoryProductService",
-	HandlerType: (*CategoryProductServiceServer)(nil),
+var CategoryService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "category.CategoryService",
+	HandlerType: (*CategoryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "FindCategoriesByIDs",
-			Handler:    _CategoryProductService_FindCategoriesByIDs_Handler,
+			Handler:    _CategoryService_FindCategoriesByIDs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -24,13 +24,13 @@ func NewGRPCCategoryServer(sctx sctx.ServiceContext, port int) *gRPCCategoryServ
 	return &gRPCCategoryServer{sctx: sctx, port: port}
 }
 
-type categoryProductServiceServer struct {
+type categoryServiceServer struct {
 	sctx sctx.ServiceContext
-	category.UnimplementedCategoryProductServiceServer
+	category.UnimplementedCategoryServiceServer
 }
 
-func NewCategoryProductServiceServer(sctx sctx.ServiceContext) *categoryProductServiceServer {
-	return &categoryProductServiceServer{sctx: sctx}
+func NewCategoryServiceServer(sctx sctx.ServiceContext) *categoryServiceServer {
+	return &categoryServiceServer{sctx: sctx}
 }
 
 func (s *gRPCCategoryServer) Start() error {
@@ -43,7 +43,7 @@ func (s *gRPCCategoryServer) Start() error {
 	// Create a gRPC server object
 	server := grpc.NewServer()
 	// Attach the Greeter service to the server
-	category.RegisterCategoryProductServiceServer(server, NewCategoryProductServiceServer(s.sctx))
+	category.RegisterCategoryServiceServer(server, NewCategoryServiceServer(s.sctx))
 	// Serve gRPC Server
 	log.Printf("Serving gRPC on 0.0.0.0:%d", s.port)
 
@@ -56,10 +56,7 @@ func (s *gRPCCategoryServer) Start() error {
 	return nil
 }
 
-func (s *categoryProductServiceServer) FindCategoriesByIDs(ctx context.Context, req *category.FindCategoriesReq) (*category.FindCategoriesRes, error) {
-	// Get DB from service context
-	db := s.sctx.MustGet(common.KeyGormComponent).(common.GormCompContext).GetDB()
-	var categories []query.CategoryDTO
+func (s *categoryServiceServer) FindCategoriesByIDs(ctx context.Context, req *category.FindCategoriesReq) (*category.FindCategoriesRes, error) {
 
 	// Convert request's IDs from string to UUID
 	uuidIDs := make([]common.UUID, len(req.Ids))
@@ -68,9 +65,10 @@ func (s *categoryProductServiceServer) FindCategoriesByIDs(ctx context.Context, 
 		uuidIDs[i] = common.UUID(uuid.MustParse(req.Ids[i]))
 	}
 
-	if err := db.Table(query.CategoryDTO{}.TableName()).
-		Where("id in (?)", uuidIDs).
-		Find(&categories).Error; err != nil {
+	// Call use case to get categories by IDs
+	findCtgsByIDsQuery := query.NewFindCategoriesByIDsQuery(s.sctx)
+	categories, err := findCtgsByIDsQuery.Execute(ctx, uuidIDs)
+	if err != nil {
 		return nil, core.ErrBadRequest.WithError("cannot list categories").WithDebug(err.Error())
 	}
 
