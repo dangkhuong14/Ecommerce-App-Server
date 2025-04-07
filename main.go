@@ -19,6 +19,8 @@ import (
 	userusecase "ecommerce/module/user/usecase"
 
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	productservice "ecommerce/module/product/infras"
 
@@ -116,10 +118,6 @@ func main() {
 	imageService := image.NewImageService(sv)
 	imageService.Routes(v1)
 
-	// <------------------------Product service-------------------------->
-	productService := productservice.NewHttpService(sv)
-	productService.Routes(v1)
-
 	// <------------------------Category service-------------------------->
 	catService := categoryservice.NewHttpService(sv) 
 	catService.Routes(v1)
@@ -130,6 +128,20 @@ func main() {
 		gRPCCategoryServer := categorygrpcservice.NewGRPCCategoryServer(sv, categoryGRPCPort)
 		gRPCCategoryServer.Start()
 	}()
+
+	// Create Category GRPC client connection
+	opts := grpc.WithTransportCredentials(insecure.NewCredentials())
+
+	cc, err := grpc.NewClient(configComp.GetCategoryGrpcUrl(), opts)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// <------------------------Product service-------------------------->
+	productService := productservice.NewHttpService(sv, cc)
+	productService.Routes(v1)
+
 	// HTTP server
 	r.Run(":3000")
 }

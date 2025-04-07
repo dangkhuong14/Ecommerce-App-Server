@@ -43,7 +43,7 @@ func (c *configComponent) InitFlags() {
 	flag.StringVar(
 		&c.categoryGrpcUrl,
 		"category-grpc-url",
-		"http://localhost:8080",
+		"localhost:8080",
 		"URL of category Grpc server",
 	)
 }
