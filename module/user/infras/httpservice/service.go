@@ -1,6 +1,7 @@
 package httpservice
 
 import (
+	"context"
 	"ecommerce/common"
 	"ecommerce/module/image"
 	userRepo "ecommerce/module/user/infras/repository"
@@ -147,7 +148,10 @@ func (s Service) HandleChangeAvatar() gin.HandlerFunc {
 		newImageRepo := image.NewImageRepo(db.GetDB())
 		changeAvatarUC := usecase.NewChangeAvatarUC(newUserRepo, newUserRepo, newImageRepo)
 
-		if err := changeAvatarUC.ChangeAvatar(c, singleAvatarChangeDTO); err != nil {
+		// Call use case change avatar with pubsub context to publish event "user.avatar.changed"
+		ctxWithPubSub := context.WithValue(c.Request.Context(), "pubsub", s.sctx.MustGet(common.KeyNatsComponent))
+
+		if err := changeAvatarUC.ChangeAvatar(ctxWithPubSub, singleAvatarChangeDTO); err != nil {
 			common.WriteErrorResponse(c, err)
 			return
 		}

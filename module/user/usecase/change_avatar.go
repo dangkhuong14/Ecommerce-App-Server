@@ -5,9 +5,11 @@ import (
 	"ecommerce/common"
 	"ecommerce/module/user/domain"
 	"fmt"
+	"log"
+
+	"ecommerce/common/pubsub"
 
 	"github.com/viettranx/service-context/core"
-	"ecommerce/common/asyncjob"
 )
 
 type changeAvatarUC struct {
@@ -55,16 +57,19 @@ func (uc *changeAvatarUC) ChangeAvatar(ctx context.Context, dto SingleAvatarChan
 		return core.ErrInternalServerError.WithWrap(err).WithDebug(err.Error()).WithError("can not update user's avatar")
 	}
 	
-	// 4. Update image's status using job
-	// Create job
-	job := asyncjob.NewJob(
-		func(ctx context.Context) error {
-			return uc.imageRepo.SetImageStatusActivated(ctx, image.ID)
-		}, asyncjob.WithName("SetImageStatusActivated"),
-	)
-	// Create job group
-	group := asyncjob.NewGroup(true, job)
-	group.Run(ctx)
+	// 4. Update image's status using pubsub pattern
+	// Publish event
+	// Get pub sub component from context
+	ps := ctx.Value("pubsub").(pubsub.PubSub)
+	
+	// Create message
+	
+	if err := ps.Publish(ctx, common.TopicUserChangedAvatar, pubsub.NewMessage(map[string]any{
+		"img_id" : imageID.String(),
+		"user_id" : dto.Requester.UserId().String(), 
+	})); err != nil {
+		log.Println(err)
+	}
 	return nil
 }
 

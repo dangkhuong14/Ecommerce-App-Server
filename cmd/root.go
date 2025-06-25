@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"log"
+
+	"github.com/spf13/cobra"
 
 	"net/http"
 
+	"ecommerce/cmd/consumer"
 	"ecommerce/common"
 	"ecommerce/component"
 	"ecommerce/middleware"
@@ -38,6 +40,7 @@ import (
 func newService() sctx.ServiceContext {
 	newSctx := sctx.NewServiceContext(sctx.WithName("G11"),
 		sctx.WithComponent(gormc.NewGormDB(common.KeyGormComponent, "")),
+		sctx.WithComponent(component.NewNATSComponent(common.KeyNatsComponent)),
 		sctx.WithComponent(component.NewJWT(common.KeyJwtComponent)),
 		sctx.WithComponent(component.NewAWSS3Provider(common.KeyAwsS3Component)),
 		sctx.WithComponent(component.NewConfigComponent(common.KeyConfigComponent)),
@@ -158,6 +161,12 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	// Add Out env command before calling Execute method
 	rootCmd.AddCommand(outEnvCmd)
+
+	consumerCmd := &cobra.Command{Use: "consumer", Short: "Start consumer"}
+	consumerCmd.AddCommand(consumer.SetImgActiveAfterAvtChangeCmd)
+
+	rootCmd.AddCommand(consumerCmd)
+	
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

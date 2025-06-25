@@ -8,11 +8,13 @@ import (
 )
 
 const (
-	KeyRequester       = "Requester"
-	KeyGormComponent   = "gorm"
-	KeyJwtComponent    = "jwt"
-	KeyAwsS3Component  = "aws_s3"
-	KeyConfigComponent = "config"
+	KeyRequester           = "Requester"
+	KeyGormComponent       = "gorm"
+	KeyJwtComponent        = "jwt"
+	KeyNatsComponent       = "nats"
+	KeyAwsS3Component      = "aws_s3"
+	KeyConfigComponent     = "config"
+	TopicUserChangedAvatar = "user.avatar.changed"
 )
 
 type GormCompContext interface {
